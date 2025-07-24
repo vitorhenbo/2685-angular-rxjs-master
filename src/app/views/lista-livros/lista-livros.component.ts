@@ -15,7 +15,10 @@ export class ListaLivrosComponent {
 
   public buscarLivros() {
     this.livroService.buscar(this.campoBusca).subscribe((retornoAPI) => {
-      console.log(retornoAPI);
+      console.log(retornoAPI),
+        (error) => {
+          console.log(error);
+        };
     });
   }
 }
