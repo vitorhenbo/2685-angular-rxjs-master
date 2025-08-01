@@ -1,6 +1,15 @@
 import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import { Item } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
 import { LivroService } from 'src/app/service/livro.service';
@@ -22,7 +31,11 @@ export class ListaLivrosComponent {
     distinctUntilChanged(),
     switchMap((valorDigitado) => this.livroService.buscar(valorDigitado)),
     tap((retornoAPI) => console.log('Fluxo inicial', retornoAPI)),
-    map((items) => this.livrosResultadoParaLivros(items))
+    map((items) => this.livrosResultadoParaLivros(items)),
+    catchError((erro) => {
+      console.log(erro);
+      return throwError(() => new Error('Ops, ocorreu um erro'));
+    })
   );
 
   private livrosResultadoParaLivros(items: Item[]): LivroVolumeInfo[] {
