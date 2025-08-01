@@ -4,11 +4,11 @@ import {
   catchError,
   debounceTime,
   distinctUntilChanged,
+  EMPTY,
   filter,
   map,
   switchMap,
   tap,
-  throwError,
 } from 'rxjs';
 import { Item } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
@@ -22,6 +22,7 @@ const PAUSA = 3000;
 })
 export class ListaLivrosComponent {
   public campoBusca = new FormControl('');
+  public mensagemErro = '';
 
   constructor(private readonly livroService: LivroService) {}
 
@@ -32,9 +33,11 @@ export class ListaLivrosComponent {
     switchMap((valorDigitado) => this.livroService.buscar(valorDigitado)),
     tap((retornoAPI) => console.log('Fluxo inicial', retornoAPI)),
     map((items) => this.livrosResultadoParaLivros(items)),
-    catchError((erro) => {
-      console.log(erro);
-      return throwError(() => new Error('Ops, ocorreu um erro'));
+    catchError(() => {
+      this.mensagemErro = 'Ops, ocorreu um erro. Recarregue a aplicação.';
+      return EMPTY;
+      // console.log(erro);
+      // return throwError(() => new Error(this.mensagemErro = 'Ops, ocorreu um erro. Recarregue a aplicação.'));
     })
   );
 
