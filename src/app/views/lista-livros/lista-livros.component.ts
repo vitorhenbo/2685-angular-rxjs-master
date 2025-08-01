@@ -1,10 +1,11 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { map, Subscription, switchMap, tap } from 'rxjs';
-import { Item, Livro } from 'src/app/models/interfaces';
+import { debounceTime, filter, map, switchMap, tap } from 'rxjs';
+import { Item } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
 import { LivroService } from 'src/app/service/livro.service';
 
+const PAUSA = 3000;
 @Component({
   selector: 'app-lista-livros',
   templateUrl: './lista-livros.component.html',
@@ -16,10 +17,11 @@ export class ListaLivrosComponent {
   constructor(private readonly livroService: LivroService) {}
 
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
-    tap(() => console.log('Fluxo inicial')),
+    debounceTime(PAUSA),
+    filter((valorDigitado) => valorDigitado.length >= 3),
     switchMap((valorDigitado) => this.livroService.buscar(valorDigitado)),
-    map((items) => this.livrosResultadoParaLivros(items)),
-    tap(() => console.log('Requisições ao servidor')),
+    tap((retornoAPI) => console.log('Fluxo inicial', retornoAPI)),
+    map((items) => this.livrosResultadoParaLivros(items))
   );
 
   private livrosResultadoParaLivros(items: Item[]): LivroVolumeInfo[] {
